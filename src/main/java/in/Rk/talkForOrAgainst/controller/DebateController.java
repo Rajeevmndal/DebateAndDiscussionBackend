@@ -216,5 +216,28 @@ public class DebateController {
         return ResponseEntity.ok(metadata);
     }
 
+    @Transactional
+    @DeleteMapping("/{debateId}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MODERATOR')")
+    public ResponseEntity<?> deleteDebate(@PathVariable String debateId) {
+        Debate debate = debateRepo.findByDebateId(debateId);
+        if (debate == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Debate not found");
+        }
+
+        UserEntity currentUser = getCurrentUser();
+        if (!debate.getOwner().getId().equals(currentUser.getId())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Only the owner can delete this debate");
+        }
+
+        // Delete associated messages first
+        messageRepo.deleteByDebateId(debateId);
+
+        // Delete the debate itself
+        debateRepo.delete(debate);
+
+        return ResponseEntity.ok("Debate deleted successfully");
+    }
+
 
 }

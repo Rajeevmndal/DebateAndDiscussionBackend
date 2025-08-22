@@ -9,6 +9,7 @@ import org.springframework.web.socket.*;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -81,7 +82,7 @@ public class DebateWebSocketHandler extends TextWebSocketHandler {
         timerPayload.put("type", "timer");
         timerPayload.put("debateId", debateId);
         timerPayload.put("duration", durationMinutes);
-        timerPayload.put("startTime", LocalDateTime.now().toString());
+        timerPayload.put("startTime", Instant.now().toString()); // ✅ UTC-safe
 
         try {
             String json = objectMapper.writeValueAsString(timerPayload);
